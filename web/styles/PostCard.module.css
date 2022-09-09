@@ -1,0 +1,72 @@
+.post_card {
+    width: 100%;
+    background-color: white;
+    padding: 16px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.card_header {
+    display: flex;
+    align-items: center;
+}
+
+.actions {
+    display: flex;
+    color: black;
+    align-items: center;
+    width: 100%;
+    justify-content: space-evenly;
+    font-size: 20px;
+}
+
+.action_icon {
+    color: rgba(0, 0, 0, 0.2);
+    transition-duration: 300ms;
+    cursor: pointer;
+}
+
+.action_icon:hover {
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.react_icon {
+    transition-duration: 300ms;
+    font-size: 20px;
+}
+
+.selected_icon {
+    transition-duration: 300ms;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, 0.06);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+
+.react_icon:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.react_content {
+    color: rgba(0, 0, 0, 0.2);
+    cursor: context-menu;
+}
+
+.owner_react_content {
+    color: rgba(0, 0, 0, 0.2);
+    transition-duration: 300ms;
+    cursor: pointer;
+}
+
+.owner_react_content:hover {
+    color: #1890ff;
+    opacity: 0.8;
+}

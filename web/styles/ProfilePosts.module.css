@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.posts_list {
+    width: 64%;
+}
+
+.top_react_list {
+    position: fixed;
+    right: 80px;
+    top: 140px;
+}
+
+@media screen and (max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+    .posts_list {
+        max-width: 80%;
+    }
+}
