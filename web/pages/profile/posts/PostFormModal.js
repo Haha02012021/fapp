@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Divider, Modal, Row, Space, Tooltip, Typography, Upload } from "antd";
+import { Avatar, Button, Col, Divider, Image, Modal, Row, Space, Tooltip, Typography, Upload } from "antd";
 import {Editor, EditorState} from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { useContext, useEffect, useState } from "react";
@@ -30,7 +30,7 @@ export default function PostFormModal() {
     useEffect(() => {
         if (post?.state === "exist") {
             if (post.content) {
-                setContent(EditorState.push(content, convertFromHTML(post.content)))
+                setContent(prev => EditorState.push(prev, convertFromHTML(post.content)))
             }
             const images = post.images.map(image => {
                 return {
@@ -287,7 +287,7 @@ export default function PostFormModal() {
                                     />
                                 )}
                                 <Modal visible={previewVisible} title={previewTitle} footer={null} onCancel={() => setPreviewVisible(false)}>
-                                    <img
+                                    <Image
                                         alt="example"
                                         style={{
                                             width: '100%',
@@ -412,7 +412,7 @@ function StatusTab({ defaultStatus, handleBack, handleChangeData }) {
 
     useEffect(() => {
         setSelectedStatus(defaultStatus)
-    }, [])
+    }, [defaultStatus])
 
     const handleSelectStatus = (index) => {
         setSelectedStatus(statusIcons[index])
@@ -432,6 +432,7 @@ function StatusTab({ defaultStatus, handleBack, handleChangeData }) {
                 {statusIcons.map((statusIcon, index) => {
                     return (
                         <Col
+                            key={index}
                             span={10}
                             className={
                                 !selectedStatus ?

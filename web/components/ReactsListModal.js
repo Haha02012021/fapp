@@ -11,6 +11,7 @@ export default function ReactsListModal({ reacts }) {
             {reacts?.map(react => {
                 return (
                     <List.Item
+                        key={react.id}
                         style={{ width: "100%" }}
                         className={styles.list_item}
                         onClick={() => router.push(`/profile/detail/${react.id}`)}

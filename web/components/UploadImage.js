@@ -1,5 +1,4 @@
 import { DeleteOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons"
-import { Image } from "antd"
 import { useEffect, useState } from "react"
 import styles from "../styles/UploadImage.module.css"
 
@@ -23,7 +22,7 @@ export default function UploadImage({ image, name, handleChangeImg = () => {} })
             handleChangeImg(selectedImg)
         }
 
-    }, [selectedImg])
+    }, [selectedImg, handleChangeImg])
     
     const handleChangeImage = (e) => {
         setSelectedImg(e.target.files[0])
@@ -50,6 +49,7 @@ export default function UploadImage({ image, name, handleChangeImg = () => {} })
             {preview ? (
                 <>
                     <img
+                        alt="preview_image"
                         src={preview}
                         className={styles.preview}
                     />

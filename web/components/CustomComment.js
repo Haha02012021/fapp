@@ -75,7 +75,7 @@ export default function CustomComment({ comment }) {
     return (
         <Comment
             actions={[
-                <a onClick={handleReply}>Trả lời</a>,
+                <a key="reply" onClick={handleReply}>Trả lời</a>,
                 comment.owner.id === authUser?.id && (
                     <Dropdown
                         arrow

@@ -40,7 +40,7 @@ export default function ReqFriendsBar({ userId, handleNewFriend }) {
         if (barRef?.current?.scrollWidth <= barRef?.current?.clientWidth) {
             setShowNextBtn(false)
         }
-    }, [barRef.current])
+    }, [])
 
     const handleScroll = (e) => {
         const scrollLeft = e.target.scrollLeft

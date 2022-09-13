@@ -60,7 +60,7 @@ export default function ProfileEdit() {
         }
 
         fetchAllCharacters()
-    }, [user])
+    }, [user, form])
 
     const handleClickCharacter = (values) => {        
         if (values.length <= 3) {
@@ -259,7 +259,7 @@ export default function ProfileEdit() {
                                     >
                                         {sexs.map((sex, index) => {
                                             return (
-                                                <Option value={index}>{sex}</Option>
+                                                <Option key={index} value={index}>{sex}</Option>
                                             )
                                         })}
                                     </Select>
@@ -340,7 +340,7 @@ export default function ProfileEdit() {
                                     >
                                         {sexs.map((sex, index) => {
                                             return (
-                                                <Option value={index}>{sex}</Option>
+                                                <Option key={index} value={index}>{sex}</Option>
                                             )
                                         })}
                                     </Select>
@@ -363,7 +363,7 @@ export default function ProfileEdit() {
                                     >
                                         {emotionStates.map((emotionState, index) => {
                                             return (
-                                                <Option value={index}>{emotionState}</Option>
+                                                <Option key={index} value={index}>{emotionState}</Option>
                                             )
                                         })}
                                     </Select>

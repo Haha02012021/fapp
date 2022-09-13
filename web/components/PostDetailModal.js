@@ -1,4 +1,4 @@
-import { CommentOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, LikeOutlined, UserOutlined } from "@ant-design/icons";
+import { CommentOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, ExclamationCircleOutlined, LikeOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Carousel, Col, Divider, Dropdown, Form, Image, Input, Menu, Popover, Row, Space } from "antd";
 import { convertFromHTML } from "draft-convert";
 import { Editor, EditorState } from "draft-js";
@@ -49,7 +49,7 @@ export default function PostDetailModal({ data }) {
 
     useEffect(() => {
         const htmlContent = data.post.content
-        setContent(EditorState.push(content, convertFromHTML(htmlContent)))
+        setContent(prev => EditorState.push(prev, convertFromHTML(htmlContent)))
 
         const localTime = new Date(data.post.updatedAt)
         const localTimeStr = localTime.toLocaleString()
@@ -77,11 +77,11 @@ export default function PostDetailModal({ data }) {
 
             getAllComments()
         }
-    }, [data]) 
+    }, [data, setComments]) 
 
     useEffect(() => {
         form.setFieldValue('comment', newComment.content)
-    }, [newComment])
+    }, [newComment, form])
 
     const handleAction = (e) => {
         const key = e.key
@@ -312,6 +312,7 @@ export default function PostDetailModal({ data }) {
                                             width: "664px",
                                             verticalAlign: "middle",
                                         }}
+                                        alt={`image_post_${post.id}`}
                                     />
                                 </div>
                             )

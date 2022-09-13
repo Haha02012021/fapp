@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import useSocket from '../../hooks/useSoket';
 import { io } from 'socket.io-client';
 import { ActionsContext } from '../../providers/ActionsProvider';
+import Link from 'next/link';
 
 const { Content } = Layout;
 
@@ -170,16 +171,16 @@ export default function Login() {
                             paddingBottom: "4px",
                         }}
                     >
-                        <a href="#">Quên mật khẩu?</a>
-                        <span>Chưa có mật khẩu? <a href="/register">Đăng ký!</a></span>
+                        <Link href="#">Quên mật khẩu?</Link>
+                        <span>Chưa có mật khẩu? <Link href="/register">Đăng ký!</Link></span>
                     </div>
                     <Form.Item>
                         <Button type="primary" htmlType="submit" style={{width: "100%"}}>
                             {isLoading ? <Spin /> : "Đăng nhập"}
                         </Button>
                     </Form.Item>
-                    {errorMsgs.map(errorMsg => {
-                        return <Alert message={errorMsg} type="error" showIcon />
+                    {errorMsgs.map((errorMsg, index) => {
+                        return <Alert key={index} message={errorMsg} type="error" showIcon />
                     })}
                 </Form>
             </Content>

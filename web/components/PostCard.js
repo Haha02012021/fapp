@@ -48,7 +48,7 @@ export default function PostCard({ data }) {
 
     useEffect(() => {
         const htmlContent = data.post.content
-        setContent(EditorState.push(content, convertFromHTML(htmlContent)))
+        setContent(prev => EditorState.push(prev, convertFromHTML(htmlContent)))
 
         const localTime = new Date(data.post.updatedAt)
         const localTimeStr = localTime.toLocaleString()
@@ -58,7 +58,7 @@ export default function PostCard({ data }) {
             updatedAt: localTimeStr,
         })
         setReact(data.react)
-    }, [data]) 
+    }, [data, setContent]) 
 
     const handleAction = (e) => {
         const key = e.key

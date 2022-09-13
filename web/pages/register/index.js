@@ -4,6 +4,7 @@ import axios from "../api/axios";
 import { useState } from "react";
 import { useRouter } from "next/router"
 import { toast, ToastContainer } from "react-toastify";
+import Link from "next/link";
 
 const { Content } = Layout;
 
@@ -146,7 +147,7 @@ export default function Register() {
                             paddingBottom: "4px",
                         }}
                     >
-                        <span>Đã có mật khẩu? <a href="/login">Đăng nhập!</a></span>
+                        <span>Đã có mật khẩu? <Link href="/login">Đăng nhập!</Link></span>
                     </div>
                     <Form.Item>
                         <Button type="primary" htmlType="submit" style={{width: "100%"}}>

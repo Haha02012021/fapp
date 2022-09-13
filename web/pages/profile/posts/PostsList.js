@@ -23,7 +23,7 @@ export default function PostsList({ userId }) {
                     })
                 setPosts(res.data)
             }
-            getPostsByOwner({ ownerId: userId, userId: authUser?.id })
+            getPostsByOwner({ ownerId: userId, userId: authUser.id })
         }
     }, [authUser, userId])
 
@@ -43,7 +43,7 @@ export default function PostsList({ userId }) {
             }
             getPostsByOwner({ ownerId: userId, userId: authUser?.id })
         }
-    }, [currentPost])
+    }, [currentPost, authUser, userId, setCurrentPost])
 
     return (
         <Col gutter={[2]} style={{ paddingBottom: "16px", width: "100%", }}>

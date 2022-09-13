@@ -10,8 +10,6 @@ import styles from "../../../styles/ChatBox.module.css"
 import ChatBoxSideBar from "../ChatBoxSidebar"
 import CreateGroupForm from "./CreateGroupForm"
 
-const { Option } = Select
-
 export default function ChatBox() {
     const router = useRouter()
     const [isMember, setMember] = useState(false)
@@ -78,7 +76,7 @@ export default function ChatBox() {
     
             getChat(roomId)
         }
-    }, [roomId, type])
+    }, [roomId, type, user])
 
     useEffect(() => {
         if (isMember && socketRef.current?.connected && type && roomId && others) {
@@ -93,7 +91,7 @@ export default function ChatBox() {
                 socketRef.current.off('update-message')
             }   
         }
-    }, [roomId, socketRef.current, type, roomId, others, isMember])
+    }, [roomId, socketRef, type, roomId, others, isMember, user])
 
     const messagesEndRef = useRef(null)
 

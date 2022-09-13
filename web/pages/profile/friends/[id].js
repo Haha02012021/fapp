@@ -35,7 +35,7 @@ export default function ProfileFriends() {
     
             getUser(id)
         }
-    }, [router])
+    }, [router, id])
 
     return (
         <ProfileLayout user={user}>

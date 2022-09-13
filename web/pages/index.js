@@ -16,7 +16,7 @@ export default function Home() {
         } else {
             router.push("/home")
         }
-  }, [])
+  }, [router])
   return (
     <></>
   )
