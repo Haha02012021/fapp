@@ -1,7 +1,7 @@
-import { BuildOutlined, EditOutlined, ExclamationCircleOutlined, HeartOutlined, ManOutlined, PlusOutlined, UserOutlined, WomanOutlined } from "@ant-design/icons";
+import { BuildOutlined, CheckOutlined, CloseOutlined, EditOutlined, ExclamationCircleOutlined, HeartOutlined, ManOutlined, PlusOutlined, SwapOutlined, UserOutlined, WomanOutlined } from "@ant-design/icons";
 import { Avatar, Badge, Button, Card, Col, Divider, Row, Tag, Tooltip, Typography } from "antd";
 import { useRouter } from "next/router";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "../pages/api/axios";
 import { UserContext } from "../providers/UserProvider";
@@ -13,14 +13,173 @@ const emotionStates = ['Độc thân', 'Crush', 'Thả thính', 'Hẹn hò', 'K�
 export default function UserCard({ user }) {
     const { user: authUser } = useContext(UserContext)
     const router = useRouter()
-    console.log("user", user);
+    const [relationship, setRelationship] = useState()
+
+    useEffect(() => {
+        if (user && authUser) {
+            const getRelationship = async (user, authUser) => {
+                const res = await axios.get('user/get-relationship', {
+                    params: {
+                        userId: authUser.id,
+                        friendId: user.id,
+                    }
+                })
+                    .then(res => res.data)
+                    .catch(err => {
+                        return {
+                            success: false,
+                            message: err.message,
+                        }
+                    })
+                
+                if (res.success) {
+                    setRelationship(res.data)
+                } else {
+
+                }
+            }
+
+            getRelationship(user, authUser)
+        }
+    }, [user, authUser])
 
     const handleEdit = () => {
         router.push('/profile/edit')
     }
 
-    const handleAddFrient = () => {
-        
+    const handleAddFriend = async () => {
+        if (user && authUser) {
+            if (relationship.type === null || relationship.type === -2) {
+                const res = await axios.post('user/add-friend', {
+                    userId: authUser.id,
+                    friendId: user.id,
+                    type: -1,
+                })
+                    .then(res => res.data)
+                    .catch(err => {
+                        return {
+                            success: false,
+                            message: err.message,
+                        }
+                    })
+                if (res.success) {
+                    setRelationship({
+                        userId: authUser.id,
+                        type: -1,
+                    })
+
+                    const notiRes = await axios.post('notification/create', {
+                        ownerId: authUser.id,
+                        toId: user.id,
+                        content: `${authUser.username} đã bình luận gửi lời mời kết bạn.`,
+                        link: `/profile/friends/${user.id}`,
+                    })
+                        .then(res => res.data)
+                        .catch(err => {
+                            return {
+                                success: false,
+                                message: err.message,
+                            }
+                        })
+                }
+            } else if (relationship.type === -1) {
+                if (relationship.userId === authUser.id) {
+                    const res = await axios.delete('user/remove-friend', {
+                        data: {
+                            userId: authUser.id,
+                            friendId: user.id,
+                        }
+                    })
+                        .then(res => res.data)
+                        .catch(err => {
+                            return {
+                                success: false,
+                                message: err.message,
+                            }
+                        })
+                    
+                    if (res.success) {
+                        setRelationship({
+                            ...relationship,
+                            type: null,
+                        })
+
+                        const notiRes = await axios.post('notification/remove', {
+                            ownerId: authUser.id,
+                            content: `${authUser.username} đã bình luận gửi lời mời kết bạn.`,
+                            link: `/profile/friends/${user.id}`,
+                        })
+                            .then(res => res.data)
+                            .catch(err => {
+                                return {
+                                    success: false,
+                                    message: err.message,
+                                }
+                            })
+    
+                    } else {
+
+                    }
+                } else {
+                    const res = await axios.post('user/add-friend', {
+                        userId: user.id,
+                        friendId: authUser.id,
+                        type: 0,
+                    })
+                        .then(res => res.data)
+                        .catch(err => {
+                            return {
+                                success: false,
+                                message: err.message,
+                            }
+                        })
+                    if (res.success) {
+                        setRelationship({
+                            ...relationship,
+                            type: 0,
+                        })
+                    } else {
+                        
+                    }
+                }
+            } else {
+                const res = await axios.delete('user/remove-friend', {
+                    data: {
+                        userId: authUser.id,
+                        friendId: user.id,
+                    }
+                })
+                    .then(res => res.data)
+                    .catch(err => {
+                        return {
+                            success: false,
+                            message: err.message,
+                        }
+                    })
+                
+                if (res.success) {
+                    setRelationship({
+                        ...relationship,
+                        type: null,
+                    })
+                    const notiRes = await axios.post('notification/create', {
+                        ownerId: authUser.id,
+                        toId: user.id,
+                        content: `${authUser.username} đã bỏ bạn bạn.`,
+                        link: `/profile/friends/${user.id}`,
+                    })
+                        .then(res => res.data)
+                        .catch(err => {
+                            return {
+                                success: false,
+                                message: err.message,
+                            }
+                        })
+                } else {
+
+                }
+            }
+        }
     }
 
     const handleChat = async () => {
@@ -36,8 +195,6 @@ export default function UserCard({ user }) {
                         message: err.message,
                     }
                 })
-            
-            console.log("res", res);
 
             if (res.success) {
                 router.push(`/chat/0/${res.data.id}`)
@@ -77,7 +234,9 @@ export default function UserCard({ user }) {
                                             }}
                                             onClick={handleEdit}
                                         >
-                                            <EditOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)"}} />
+                                            <Tooltip title="Chỉnh sửa">
+                                                <EditOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)"}} />
+                                            </Tooltip>
                                         </div>
                                     ) :
                                     (
@@ -93,9 +252,33 @@ export default function UserCard({ user }) {
                                                 border: "2px solid white",
                                                 cursor: "pointer",
                                             }}
-                                            onClick={handleEdit}
+                                            onClick={handleAddFriend}
                                         >
-                                            <PlusOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)"}} />
+                                            {
+                                                relationship?.type === null ?
+                                                    (
+                                                        <Tooltip title="Kết bạn">
+                                                            <PlusOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                        </Tooltip>
+                                                    ) :
+                                                    relationship?.type === -1 ?
+                                                        relationship?.userId === authUser?.id ?
+                                                            (
+                                                                <Tooltip title="Bỏ kết bạn">
+                                                                    <CloseOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                                </Tooltip>
+                                                            ) :
+                                                            (
+                                                                <Tooltip title="Chấp nhận lời mời kết bạn">
+                                                                    <SwapOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                                </Tooltip>
+                                                            ) :
+                                                        (
+                                                            <Tooltip title="Bỏ bạn">
+                                                                <CheckOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                            </Tooltip>
+                                                        )
+                                            }
                                         </div>
                                     )}
                             offset={[-24, 108]}
@@ -137,9 +320,33 @@ export default function UserCard({ user }) {
                                                 border: "2px solid white",
                                                 cursor: "pointer",
                                             }}
-                                            onClick={handleAddFrient}
+                                            onClick={handleAddFriend}
                                         >
-                                            <PlusOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)"}} />
+                                            {
+                                                relationship?.type === null ?
+                                                    (
+                                                        <Tooltip title="Kết bạn">
+                                                            <PlusOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                        </Tooltip>
+                                                    ) :
+                                                    relationship?.type === -1 ?
+                                                        relationship?.userId === authUser?.id ?
+                                                            (
+                                                                <Tooltip title="Bỏ kết bạn">
+                                                                    <CloseOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                                </Tooltip>
+                                                            ) :
+                                                            (
+                                                                <Tooltip title="Chấp nhận lời mời kết bạn">
+                                                                    <SwapOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                                </Tooltip>
+                                                            ) :
+                                                        (
+                                                            <Tooltip title="Bỏ bạn">
+                                                                <CheckOutlined style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.85)" }} />
+                                                            </Tooltip>
+                                                        )
+                                            }
                                         </div>
                                     )}
                             offset={[-24, 108]}
@@ -186,7 +393,7 @@ export default function UserCard({ user }) {
                     }}
                     
                 >
-                    {user?.emotionState >= 0 && (
+                    {user?.emotionState && user.emotionState >= 0 && (
                         <Row gutter={[2, 24]}>
                             <Col span={6}>
                                 <ExclamationCircleOutlined />

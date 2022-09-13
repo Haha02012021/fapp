@@ -26,14 +26,11 @@ export default function ProfileMenu({ userId }) {
     const router = useRouter()
 
     const handleItem = (e) => {
-        console.log("e", e);
-
         if (userId) {
             return router.push(`/profile/${e.key}/${userId}`)
         }
     }
 
-    console.log(router.asPath.split("/")[2]);
     return (
         <Menu
             mode="horizontal"
@@ -46,15 +43,7 @@ export default function ProfileMenu({ userId }) {
             }}
             selectedKeys={[router.asPath.split("/")[2]]}
             onClick={handleItem}
-        >
-            {items.map(item => {
-                return (
-                    <Menu.Item key={item.key}>
-                        {item.icon}
-                        <span>{item.label}</span>
-                    </Menu.Item>
-                )
-            })}
-        </Menu>
+            items={items}
+        />
     )
 }

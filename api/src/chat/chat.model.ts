@@ -1,48 +1,56 @@
 import {
-  AllowNull,
-  AutoIncrement,
-  BelongsTo,
-  BelongsToMany,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  HasMany,
-  Model,
-  PrimaryKey,
-  Table,
+    AllowNull,
+    AutoIncrement,
+    BelongsTo,
+    BelongsToMany,
+    Column,
+    DataType,
+    Default,
+    ForeignKey,
+    HasMany,
+    Model,
+    PrimaryKey,
+    Table,
 } from 'sequelize-typescript';
 import { ChatsUsers } from 'src/chatsusers/chatsusers.model';
 import { Message } from 'src/message/message.model';
 import { User } from 'src/user/user.model';
 
 export enum CHAT_TYPE {
-  TWO = 0,
-  GROUP = 1,
+    TWO = 0,
+    GROUP = 1,
 }
 
 @Table
 export class Chat extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.BIGINT)
-  id: number;
+    @PrimaryKey
+    @AutoIncrement
+    @Column(DataType.BIGINT)
+    id: number;
 
-  @Default(CHAT_TYPE.TWO)
-  @Column
-  type: CHAT_TYPE;
+    @AllowNull
+    @Column
+    name: string;
 
-  @AllowNull(false)
-  @ForeignKey(() => User)
-  @Column(DataType.BIGINT)
-  ownerId: number;
+    @AllowNull
+    @Column
+    avatar: string;
 
-  @BelongsTo(() => User)
-  owner: User;
+    @Default(CHAT_TYPE.TWO)
+    @Column
+    type: CHAT_TYPE;
 
-  @HasMany(() => Message)
-  messages: Message[];
+    @AllowNull(false)
+    @ForeignKey(() => User)
+    @Column(DataType.BIGINT)
+    ownerId: number;
 
-  @BelongsToMany(() => User, () => ChatsUsers)
-  members: User[];
+    @BelongsTo(() => User)
+    owner: User;
+
+    @HasMany(() => Message)
+    messages: Message[];
+
+    @BelongsToMany(() => User, () => ChatsUsers)
+    members: User[];
 }

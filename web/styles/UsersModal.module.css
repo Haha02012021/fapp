@@ -1,0 +1,62 @@
+.user {
+    border-radius: 4px;
+    align-items: center;
+    transition-duration: 300ms;
+    padding-top: 4px;
+    padding-left: 4px;
+    padding-bottom: 4px;
+    cursor: pointer;
+}
+
+.user:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.badge_count {
+    font-size: 8px;
+    color: rgba(0, 0, 0, 0.2);
+    transition-duration: 300ms;
+}
+
+.badge_count:hover {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.friends_box {
+    max-height: 20vh;
+    overflow-y: auto;
+}
+
+.friends_box::-webkit-scrollbar {
+    width: 4px;
+}
+
+.friends_box::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+@media screen and (min-height: 768px) {
+    .friends_box {
+        max-height: 24vh;
+    }
+}
+
+@media screen and (min-height: 820px) {
+    .friends_box {
+        max-height: 28vh;
+    }
+}
+
+.members_box {
+    margin-bottom: 8px;
+    max-height: 54px;
+    overflow-y: auto;
+}
+
+.members_box::-webkit-scrollbar {
+    width: 4px;
+}
+
+.members_box::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.06);
+}

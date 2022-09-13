@@ -28,7 +28,6 @@ export default function ProfileEdit() {
     const router = useRouter()
 
     useEffect(() => {
-        console.log("user", user);
         form.setFieldsValue({
             fullname: user?.fullname,
             avatar: user?.avatar,
@@ -48,10 +47,14 @@ export default function ProfileEdit() {
         const fetchAllCharacters = async () => {
             const res = await axios.get('character/get-all')
                 .then(res => res.data)
-                .catch(err => console.log(err.message))
+                .catch(err => {
+                    return {
+                        success: false,
+                        message: err.message,
+                    }
+                })
             
             if (res.success) {
-                console.log("characters", res.data);
                 setCharacters(res.data)
             }
         }
@@ -59,9 +62,7 @@ export default function ProfileEdit() {
         fetchAllCharacters()
     }, [user])
 
-    const handleClickCharacter = (values) => {
-        console.log(values);
-        
+    const handleClickCharacter = (values) => {        
         if (values.length <= 3) {
             setSelectedCharacter(values)
             //form.setFieldValue("characters", values)
@@ -80,7 +81,6 @@ export default function ProfileEdit() {
     }
 
     const handleChangeImg = (img) => {
-        console.log("img", img);
         form.setFieldValue("avatar", img)
     }
 
@@ -93,11 +93,8 @@ export default function ProfileEdit() {
             }
         }
 
-        console.log("form", form.getFieldsValue());
-        console.log("user", user);
         const resData = await axios.put(`user/${user.id}/edit`, form.getFieldsValue())
             .then((res) => {
-                console.log(res.data);
                 return res.data
             })
             .catch(err => {
@@ -133,6 +130,7 @@ export default function ProfileEdit() {
                 router.push(`/profile/detail/${user.id}`)
             }, 2000)
         } else {
+            setLoading(false)
             toast.error(resData.message, {
                 position: "top-right",
                 autoClose: 1800,

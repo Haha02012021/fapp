@@ -1,0 +1,35 @@
+.notis_list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.notis_list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.notis_list::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.waiting_list_item {
+    padding-left: 4px;
+    padding-right: 4px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+    background-color: rgba(230, 247, 255, 0.8);
+}
+
+.waiting_list_item:hover {
+    background-color: rgba(230, 247, 255, 1);
+}
+
+.list_item {
+    padding-left: 4px;
+    padding-right: 4px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+}
+
+.list_item:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+}

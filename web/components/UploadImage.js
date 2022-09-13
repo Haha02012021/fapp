@@ -3,7 +3,7 @@ import { Image } from "antd"
 import { useEffect, useState } from "react"
 import styles from "../styles/UploadImage.module.css"
 
-export default function UploadImage({ image, name, handleChangeImg }) {
+export default function UploadImage({ image, name, handleChangeImg = () => {} }) {
     const [selectedImg, setSelectedImg] = useState()
     const [preview, setPreview] = useState(image)
     const [isShowActions, setShowActions] = useState(false)
@@ -13,14 +13,11 @@ export default function UploadImage({ image, name, handleChangeImg }) {
     }, [image])
     
     useEffect(() => {
-        // create the preview
         if (selectedImg) {
-            // console.log(selectedImg);
             const objectUrl = URL.createObjectURL(selectedImg)
             setPreview(objectUrl)
 
             handleChangeImg(selectedImg)
-            // free memory when ever this component is unmounted
             return () => URL.revokeObjectURL(objectUrl)
         } else {
             handleChangeImg(selectedImg)
@@ -39,12 +36,12 @@ export default function UploadImage({ image, name, handleChangeImg }) {
 
     return (
         <div
-            class={styles.uploadimage}
+            className={styles.uploadimage}
             onMouseEnter={() => setShowActions(true)}
             onMouseLeave={() => setShowActions(false)}
         >
             <input
-                class={styles.inputfile}
+                className={styles.inputfile}
                 type="file"
                 name={name}
                 onChange={handleChangeImage}
@@ -59,7 +56,6 @@ export default function UploadImage({ image, name, handleChangeImg }) {
                     {isShowActions && (
                         <div className={styles.actions}>
                             <div className={styles.actions_content}>
-                                {/* <EyeOutlined className={styles.actions_icon} /> */}
                                 <DeleteOutlined className={styles.actions_icon} onClick={handleRemove} />
                             </div>
                         </div>

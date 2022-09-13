@@ -37,7 +37,7 @@ export default function TopReactList({ user }) {
             <List>
                 {threeReactTop.map(top => {
                     return (
-                        <List.Item>
+                        <List.Item key={top.id}>
                             <Space>
                                 <Avatar src={top?.avatar} icon={<UserOutlined />} />
                                 <div style={{ width: "100%" }} >

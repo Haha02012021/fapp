@@ -15,17 +15,20 @@ export default function Register() {
         setLoading(true)
         const res = await axios.post('auth/signup', values)
             .then(res => {
-                return res.data;
+                return res.data
             })
             .catch(err => {
-                console.log(err);
+                return {
+                    success: false,
+                    message: err.message,
+                }
             }) 
         
         if (res.success) {
             setLoading(false)
             toast.success('Đăng ký thành công!', {
                 position: "top-right",
-                autoClose: 5000,
+                autoClose: 1800,
                 hideProgressBar: false,
                 closeOnClick: false,
                 pauseOnHover: true,

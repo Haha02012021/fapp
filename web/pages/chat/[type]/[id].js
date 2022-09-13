@@ -8,67 +8,92 @@ import { UserContext } from "../../../providers/UserProvider"
 import axios from "../../api/axios"
 import styles from "../../../styles/ChatBox.module.css"
 import ChatBoxSideBar from "../ChatBoxSidebar"
+import CreateGroupForm from "./CreateGroupForm"
 
 const { Option } = Select
 
 export default function ChatBox() {
     const router = useRouter()
+    const [isMember, setMember] = useState(false)
     const { type, id: roomId } = router.query
     const { user } = useContext(UserContext)
     const [others, setOthers] = useState()
     const [messages, setMessages] = useState([])
-    const { socketRef, socketCreated, onlineUsers, setOnlineUsers } = useContext(ActionsContext)
+    const { socketRef, onlineUsers } = useContext(ActionsContext)
+    const [chat, setChat] = useState({
+        name: '',
+        avatar: '',
+        isOnline: false,
+    })
     const [form] = Form.useForm()
 
     useEffect(() => {
-        if (socketRef.current && socketRef.current.connected) {
-            socketCreated.current = false
-        }
+        if (onlineUsers && others) {
+            for (const member of others) {
+                const findOnlineUserIndex = onlineUsers.findIndex(onlineUser => onlineUser.userId === member.id)
 
-        if (!socketCreated.current) {
-            if (socketRef.current && !socketRef.current.connected) {
-                console.log("reconnect");
-                socketRef.current.once('connect')
-                socketCreated.current = true
+                if (findOnlineUserIndex >= 0) {
+                    setChat(prev => {
+                        return {
+                            ...prev,
+                            isOnline: true,
+                        }
+                    })
+                    break
+                }
             }
         }
-    }, [socketRef.current])
+    }, [onlineUsers, others])
 
     useEffect(() => {
-        const getChat = async (id) => {
-            const res = await axios.get(`chat/get/${id}`)
-                .then(res => res.data)
-                .catch(err => {
-                    return {
-                        success: false,
-                        message: err.message,
+        if (roomId && type && type != "add") {
+            const getChat = async (id) => {
+                const res = await axios.get(`chat/get/${id}`)
+                    .then(res => res.data)
+                    .catch(err => {
+                        return {
+                            success: false,
+                            message: err.message,
+                        }
+                    })
+                if (res.success) {
+                    setMessages(res.data.messages)
+                    const authIndex = res.data.chat?.members.findIndex(member => member.id === user?.id)
+                    if (authIndex >= 0 || roomId === "add") setMember(true)
+                    const others = res.data.chat?.members.filter(member => member.id !== user?.id)
+                    setOthers(others)
+                    if (type == 0) {
+                        setChat({
+                            name: others[0].username,
+                            avatar: others[0].avatar,
+                        })
+                    } else if (type == 1) {
+                        setChat({
+                            name: res.data.chat?.name,
+                            avatar: res.data.chat?.avatar,
+                        })
                     }
-                })
-            console.log(res);
-            if (res.success) {
-                setMessages(res.data.messages)
-                setOthers(res.data.chat?.members.filter(member => member.id !== user?.id))
+                }
             }
+    
+            getChat(roomId)
         }
+    }, [roomId, type])
 
-        getChat(roomId)
-
-        console.log("socketRef", socketRef);
-
-        if (socketRef.current && socketRef.current.connected && roomId) {
-            console.log("join");
-            socketRef.current.emit('join', roomId)
+    useEffect(() => {
+        if (isMember && socketRef.current?.connected && type && roomId && others) {
+            socketRef.current.emit('join', `${type}/${roomId}`, user)
 
             socketRef.current.on('update-message', newMsg => {
-                console.log(newMsg);
                 setMessages(prev => [...prev, newMsg])
             })
 
             return () => {
-                socketRef.current.emit('leave', roomId)
+                socketRef.current.emit('leave', `${type}/${roomId}`, user)
+                socketRef.current.off('update-message')
             }   
         }
-    }, [roomId, socketRef.current])
+    }, [roomId, socketRef.current, type, roomId, others, isMember])
 
     const messagesEndRef = useRef(null)
 
@@ -89,9 +114,6 @@ export default function ChatBox() {
                 chatId: new Number(roomId),
 
             }
-
-            console.log("msgReq", req);
-
             const res = await axios.post('message/create', req)
                 .then(res => res.data)
                 .catch(err => {
@@ -102,164 +124,152 @@ export default function ChatBox() {
                 })
             
             if (res.success) {
-                console.log("msgRes", res);
                 form.setFieldValue('message', '')
                 if (others) {
-                    others.map(member => {
-                        if (value && others) {
-                            const newMsg = {
-                                owner: {
-                                    id: user.id,
-                                    avatar: user.avatar,
-                                    username: user.username,
-                                },
-                                to: member,
-                                content: value.message,
-                            }
-                            setMessages(prev => [...prev, newMsg])
-                
-                            socketRef.current.emit('message-change', roomId, newMsg)
-                        }
-                    })
+                    let newMsg = {
+                        owner: {
+                            id: user.id,
+                            avatar: user.avatar,
+                            username: user.username,
+                        },
+                        content: value.message,
+                    }
+                    setMessages(prev => [...prev, newMsg])
+                    socketRef.current.emit('message-change', `${type}/${roomId}`, newMsg)
                 }
             }
         }
     }
-
-    console.log("online", onlineUsers);
       
     return (
         <AuthLayout>
-            <div
-                style={{
-                    width: "100%",
-                    height: "calc(100vh - 64px)",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                <Row
-                    gutter={[24]}
-                    className={styles.chat_box}
+            {isMember ? (
+                <div
                     style={{
-                        width: "80%",
-                        height: "90%"
+                        width: "100%",
+                        height: "calc(100vh - 64px)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                     }}
                 >
-                    <Col
-                        span={6}
+                    <Row
+                        gutter={[24]}
+                        className={styles.chat_box}
                         style={{
-                            borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                            padding: 0,
-                            paddingTop: "16px",
-                            paddingBottom: "16px",
+                            width: "80%",
+                            height: "90%"
                         }}
-                        className="chat-menu"
                     >
-                        <ChatBoxSideBar userId={user?.id} />
-                    </Col>
-                    <Col
-                        span={18}
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            paddingTop: "16px",
-                            paddingLeft: "16px",
-                            paddingBottom: "16px",
-                        }}>
-                        {
-                            roomId === "add" ?
-                                (<>
-                                    <Form>
-                                        <Form.Item
-                                            label="Tên nhóm"
-                                        >
-                                            <Input placeholder="Nhập tên nhóm" />
-                                        </Form.Item>
-                                        <Form.Item
-                                            label="Thêm thành viên"
-                                        >
-                                            
-                                        </Form.Item>
-                                    </Form>
-                                </>) :
-                                (
-                                    <>
-                                        <div style={{ height: "64px" }}>
-                                            {type == 0 ?
-                                                (
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                        }}
-                                                    >
-                                                        <Avatar src={others && others[0]?.avatar} size={40} />
-                                                        <div style={{ paddingLeft: "4px" }}>
-                                                            <b>{others && others[0].username}</b>
-                                                            <p style={{ fontSize: "12px", color: "rgba(0, 0, 0, 0.2)" }}>
-                                                                <i>
-                                                                    {others && onlineUsers?.findIndex(onlineUser => onlineUser.user.id === others[0]?.id) >= 0 ? 
-                                                                        "Active now" :
-                                                                    "Offline"}
-                                                                </i>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                ) :
-                                                (
-                                                    <></>
-                                            )}
-                                            <Divider style={{ padding: 0, margin: 0, marginTop: "8px", }} />
-                                        </div>
-                                        <div style={{ maxHeight: "56vh", overflowY: "auto", minHeight: "472px", marginTop: "2px", marginBottom: "2px" }} className={styles.messages_list}>
-                                            {messages?.map((message, index) => {
-                                                return (
-                                                    <div
-                                                        key={index}
-                                                        className={
-                                                            message.owner.id === user?.id ? styles.owner_bubble : styles.other_bubble
-                                                        }
-                                                    >
-                                                        <Avatar src={message.owner.avatar} icon={<UserOutlined />} />
-                                                        <span className={styles.bubble}>{message.content}</span>
-                                                    </div>
-                                                )
-                                            })}
-                                            <div ref={messagesEndRef} />
-                                        </div>
-                                        <div style={{ height: "fit-content", display: "flex", alignItems: "flex-end" }}>
-                                            <div style={{ display: "flex", width: "100%", }}>
-                                                <Avatar src={user?.avatar} icon={<UserOutlined />} />
-                                                <Form
-                                                    style={{ display: "flex", width: "100%" }}
-                                                    onFinish={handleSend}
-                                                    form={form}
+                        <Col
+                            span={6}
+                            style={{
+                                borderRight: "1px solid rgba(0, 0, 0, 0.06)",
+                                padding: 0,
+                                paddingTop: "16px",
+                                paddingBottom: "16px",
+                            }}
+                            className="chat-menu"
+                        >
+                            <ChatBoxSideBar userId={user?.id} />
+                        </Col>
+                        <Col
+                            span={18}
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                paddingTop: "16px",
+                                paddingLeft: "16px",
+                                paddingBottom: "16px",
+                            }}>
+                            {
+                                roomId === "add" ?
+                                    (<>
+                                        <CreateGroupForm />
+                                    </>) :
+                                    (
+                                        <>
+                                            <div style={{ height: "64px" }}>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                    }}
                                                 >
-                                                    <Form.Item
-                                                        name="message"
-                                                        style={{
-                                                            width: "100%",
-                                                            paddingLeft: "8px",
-                                                            paddingRight: "8px",
-                                                            margin: 0,
-                                                        }}
-                                                    >
-                                                        <Input placeholder="Nhập tin nhắn" />
-                                                    </Form.Item>
-                                                    <Button type="primary" htmlType="submit">
-                                                        <SendOutlined />
-                                                    </Button>
-                                                </Form>
+                                                    <Avatar src={chat?.avatar} size={40} />
+                                                    <div style={{ paddingLeft: "4px" }}>
+                                                        <b>{chat?.name}</b>
+                                                        <p style={{ fontSize: "12px", color: "rgba(0, 0, 0, 0.2)" }}>
+                                                            <i>
+                                                                {chat.isOnline ? 
+                                                                    "Active now" :
+                                                                "Offline"}
+                                                            </i>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <Divider style={{ padding: 0, margin: 0, marginTop: "8px", }} />
                                             </div>
-                                        </div>
-                                    </>
-                                )
-                        }
-                    </Col>
-                </Row>
-            </div>
+                                            <div style={{ maxHeight: "56vh", overflowY: "auto", minHeight: "472px", marginTop: "2px", marginBottom: "2px" }} className={styles.messages_list}>
+                                                {messages?.map((message, index) => {
+                                                    return (
+                                                        <div
+                                                            key={index}
+                                                            className={
+                                                                message?.owner?.id === user?.id ? styles.owner_bubble : styles.other_bubble
+                                                            }
+                                                        >
+                                                            <Avatar src={message?.owner?.avatar} icon={<UserOutlined />} />
+                                                            <span className={styles.bubble}>{message?.content}</span>
+                                                        </div>
+                                                    )
+                                                })}
+                                                <div ref={messagesEndRef} />
+                                            </div>
+                                            <div style={{ height: "fit-content", display: "flex", alignItems: "flex-end" }}>
+                                                <div style={{ display: "flex", width: "100%", }}>
+                                                    <Avatar src={user?.avatar} icon={<UserOutlined />} />
+                                                    <Form
+                                                        style={{ display: "flex", width: "100%" }}
+                                                        onFinish={handleSend}
+                                                        form={form}
+                                                    >
+                                                        <Form.Item
+                                                            name="message"
+                                                            style={{
+                                                                width: "100%",
+                                                                paddingLeft: "8px",
+                                                                paddingRight: "8px",
+                                                                margin: 0,
+                                                            }}
+                                                        >
+                                                            <Input placeholder="Nhập tin nhắn" />
+                                                        </Form.Item>
+                                                        <Button type="primary" htmlType="submit">
+                                                            <SendOutlined />
+                                                        </Button>
+                                                    </Form>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                            }
+                        </Col>
+                    </Row>
+                </div>
+            ) : (
+                    <div
+                        style={{
+                            minHeight: "calc(100vh - 64px)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "rgba(0, 0, 0, 0.65)"                            
+                        }}
+                    >
+                        401 | Bạn không có quyền vào trang này!
+                    </div>
+            )}
         </AuthLayout>
     )
 }

@@ -26,7 +26,6 @@ export default function ProfileContact() {
                     })
                 
                 if (res.success) {
-                    console.log(res.data);
                     setUser(res.data.user)
                 } else {
     

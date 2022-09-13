@@ -21,7 +21,6 @@ export default function PostsList({ userId }) {
                             message: err.message,
                         }
                     })
-                console.log("postsRes", res);
                 setPosts(res.data)
             }
             getPostsByOwner({ ownerId: userId, userId: authUser?.id })
@@ -40,7 +39,6 @@ export default function PostsList({ userId }) {
                             message: err.message,
                         }
                     })
-                // console.log(res);
                 setPosts(res.data)
             }
             getPostsByOwner({ ownerId: userId, userId: authUser?.id })

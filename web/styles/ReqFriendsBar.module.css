@@ -1,0 +1,53 @@
+.req_friends_bar {
+    display: flex;
+    max-width: 68vw;
+    overflow-y: auto;
+    position: relative;
+    align-items: center;
+}
+
+.req_friends_bar::-webkit-scrollbar {
+    width: 0;
+}
+
+.before_button {
+    font-size: 24px;
+    min-width: 32px;
+    height: 32px;
+    border: 2px solid black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.2;
+    position: sticky;
+    transition-duration: 300ms;
+    z-index: 2;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.before_button:hover {
+    opacity: 0.4;
+}
+
+.next_button {
+    font-size: 24px;
+    min-width: 32px;
+    height: 32px;
+    border: 2px solid black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.2;
+    position: sticky;
+    transition-duration: 300ms;
+    z-index: 2;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.next_button:hover {
+    opacity: 0.4;
+}

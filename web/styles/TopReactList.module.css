@@ -3,4 +3,6 @@
     border-radius: 4px;
     width: 264px;
     height: fit-content;
+    position: sticky;
+    top: 146px;
 }

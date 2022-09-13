@@ -31,7 +31,6 @@ export default function ProfileDetail() {
                     })
                 
                 if (res.success) {
-                    console.log(res.data);
                     setUser(res.data.user)
                 } else {
     
@@ -54,11 +53,11 @@ export default function ProfileDetail() {
                 }
                 footer={
                     <div style={{ width: "100%", display: "flex", justifyContent: "end", }}>
-                        {
+                        {/* {
                             user?.id === authUser?.id ? 
                                 (<Button type="primary">Chỉnh sửa</Button>) :
                                 (<Button type="primary">Theo dõi</Button>)
-                        }
+                        } */}
                     </div>
                 }
                 // bordered

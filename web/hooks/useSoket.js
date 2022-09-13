@@ -7,7 +7,7 @@ const useSocket = () => {
   const socketRef = useRef()
   const { user } = useContext(UserContext)
   useEffect(() => {
-    if (!socketCreated.current) {
+    if (!socketCreated.current && user) {
       const socketInitializer = async () => {
         await fetch('/api/socket')
       }
@@ -16,13 +16,14 @@ const useSocket = () => {
         socketCreated.current = true
 
         socketRef.current = io('http://localhost:3000', {
-          transports: ['websocket']
+          transports: ['websocket'],
+          auth: user
         })
       } catch (error) {
-        console.log(error)
+        
       }
     }
-  }, []);
+  }, [user]);
 
   return [socketRef, socketCreated]
 };

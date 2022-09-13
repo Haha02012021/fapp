@@ -1,4 +1,4 @@
-import { GroupOutlined, PlusCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { GroupOutlined, PlusCircleOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Divider, Menu, Typography } from "antd";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -27,7 +27,6 @@ export default function ChatBoxSideBar({ userId, index = false }) {
         const { type, id } = router.query
 
         if (type && id) {
-            console.log({type, id});
             setDefaultMenu({
                 type: type.toString(),
                 id: id.toString(),
@@ -46,7 +45,6 @@ export default function ChatBoxSideBar({ userId, index = false }) {
                 .then(res => res.data)
 
             if (res.success) {
-                // console.log("chatRes" + type, res);
                 if (type == 0) {
                     setPersonalChats(res.data)
                 } else if (type == 1) {
@@ -59,7 +57,6 @@ export default function ChatBoxSideBar({ userId, index = false }) {
         getChats(userId, 1)
     }, [userId])
 
-    console.log("personalChats", personalChats);
     const handleChatOption = (op) => {
         router.push(`/chat/${op.keyPath[1]}/${op.keyPath[0]}`)
     }
@@ -78,27 +75,32 @@ export default function ChatBoxSideBar({ userId, index = false }) {
                     style={{ width: "100%" }}
                     defaultSelectedKeys={[defaultMenu.id]}
                     defaultOpenKeys={() => {
-                        console.log("defaultMenu", defaultMenu)
                         return [defaultMenu.type]
                     }}
                     mode="inline"
                     items={[
                         getItem('Nhóm', '1', <GroupOutlined />, [
                             getItem('Thêm nhóm', 'add', <PlusCircleOutlined />),
-                            getItem('Item 1', 'g1'),
-                            getItem('Item 2', 'g2'),
+                            ...groupChats?.map(chat => {
+                                return getItem((
+                                    <>
+                                        <Avatar src={chat.avatar} icon={<TeamOutlined />} />
+                                        {chat.name}
+                                    </>
+                                ), chat.id?.toString())
+                            })
                         ]),
-                        
+
                         getItem('Cá nhân', '0', <UserOutlined />,
                             personalChats && personalChats?.map(chat => {
-                                const other = chat.members.find(member => member.id !== userId)
+                                const other = chat?.members?.find(member => member.id !== userId)
 
                                 return getItem((
                                     <>
-                                        <Avatar src={other.avatar} icon={<UserOutlined />} />
-                                        {other.username}
+                                        <Avatar src={other?.avatar} icon={<UserOutlined />} />
+                                        {other?.username}
                                     </>
-                                ), chat.id.toString())
+                                ), chat?.id?.toString())
                             })
                         ),
                     ]}
@@ -110,25 +112,32 @@ export default function ChatBoxSideBar({ userId, index = false }) {
                     style={{ width: "100%" }}
                     defaultOpenKeys={['0', '1']}
                     mode="inline"
-                    items={[
-                        getItem('Nhóm', '1', <GroupOutlined />, [
-                            getItem('Thêm nhóm', 'add', <PlusCircleOutlined />),
-                            getItem('Item 1', 'g1'),
-                            getItem('Item 2', 'g2'),
-                        ]),
-                        
+                    items={[                      
                         getItem('Cá nhân', '0', <UserOutlined />,
-                            personalChats && personalChats?.map(chat => {
-                                const other = chat.members.find(member => member.id !== userId)
+                            personalChats?.map(chat => {
+                                const other = chat?.members?.find(member => member.id !== userId)
 
                                 return getItem((
                                     <>
-                                        <Avatar src={other.avatar} icon={<UserOutlined />} />
-                                        {other.username}
+                                        <Avatar src={other?.avatar} icon={<UserOutlined />} />
+                                        {other?.username}
                                     </>
-                                ), chat.id.toString())
+                                ), chat?.id?.toString())
                             })
                         ),
+                        getItem('Nhóm', '1', <GroupOutlined />, [
+                            getItem('Thêm nhóm', 'add', <PlusCircleOutlined />),
+                            ...groupChats?.map(chat => {
+                                if (chat) {
+                                    return getItem((
+                                        <>
+                                            <Avatar src={chat.avatar} icon={<UserOutlined />} />
+                                            {chat.name}
+                                        </>
+                                    ), chat.id?.toString())
+                                }
+                            })
+                        ]),
                     ]}
                 />
             )}

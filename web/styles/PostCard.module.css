@@ -70,3 +70,17 @@
     color: #1890ff;
     opacity: 0.8;
 }
+
+.comments_list {
+    max-height: 36vh;
+    overflow: auto;
+}
+
+.comments_list::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.comments_list::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+}

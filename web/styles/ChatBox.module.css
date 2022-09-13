@@ -6,7 +6,7 @@
 
 .owner_bubble {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     flex-direction: row-reverse;
     align-items: flex-end;
     margin-top: 4px;
@@ -31,7 +31,3 @@
     max-width: 40%;
     word-wrap: break-word;
 }
-
-/* .messages_list:hover {
-    overflow-y: auto;
-} */

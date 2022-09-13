@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Divider, Modal, Row, Space, Spin, Tooltip, Typography, Upload } from "antd";
+import { Avatar, Button, Col, Divider, Modal, Row, Space, Tooltip, Typography, Upload } from "antd";
 import {Editor, EditorState} from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { useContext, useEffect, useState } from "react";
@@ -8,12 +8,11 @@ import styles from "../../../styles/PostFormModal.module.css"
 import { ActionsContext } from "../../../providers/ActionsProvider";
 import { statusIcons } from "../../../constant/statusIcons";
 import { UserContext } from "../../../providers/UserProvider";
-import { deleteImage, getAllImages, uploadImage } from "../../api/firebase";
+import { uploadImage } from "../../api/firebase";
 import axios from "../../api/axios";
-import { toast, ToastContainer } from "react-toastify";
-import { ref } from "firebase/storage";
-import { storage } from "../../../firebase/config";
+import { toast } from "react-toastify";
 import RichEditor from "../../../components/RichEditor";
+import { useRouter } from "next/router";
 
 export default function PostFormModal() {
     const { user } = useContext(UserContext)
@@ -22,16 +21,14 @@ export default function PostFormModal() {
     const [imgList, setImgList] = useState([])
     const [status, setStatus] = useState()
     const [currentTab, setCurrentTab] = useState(null)
+    const router = useRouter()
 
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
 
     useEffect(() => {
-        // console.log("post", post);
-
         if (post?.state === "exist") {
-            console.log("post-exist", post);
             if (post.content) {
                 setContent(EditorState.push(content, convertFromHTML(post.content)))
             }
@@ -43,7 +40,6 @@ export default function PostFormModal() {
                     url: image.imgLink,
                 }
             })
-            console.log("images", images);
             setImgList(images)
             setStatus({
                 id: post.status
@@ -62,7 +58,6 @@ export default function PostFormModal() {
 
     const handleChangeContent = (values) => {
         setContent(values)
-        console.log(values);
     }
 
     const handleClickImg = () => {
@@ -107,12 +102,8 @@ export default function PostFormModal() {
 
     const handleUp = async () => {
         setLoading(true)
-        console.log("content", convertToHTML(content.getCurrentContent()));
-        console.log("imgList", imgList);
-        console.log("status", status?.id)
-        console.log("post", post);
 
-        if (!post) {
+        if (!post || post?.tab) {
             const res = await axios.post("post/create", {
                 status: status?.id,
                 content: convertToHTML(content.getCurrentContent()),
@@ -124,10 +115,7 @@ export default function PostFormModal() {
                         success: false,
                         message: err.message,
                     }
-                })
-            
-            console.log("res", res);
-    
+                })    
             if (res.success) {
                 const images = []
                 for (let i = 0; i < imgList.length; i++) {
@@ -138,10 +126,7 @@ export default function PostFormModal() {
                         type: "post",
                         typeId: res.data.id,
                     }
-                }
-    
-                console.log("images", images);
-    
+                }    
                 let imgRes = {
                     success: true
                 }
@@ -172,6 +157,19 @@ export default function PostFormModal() {
                     });
 
                     setShowPostFormModal(false)
+
+                    const notiRes = await axios.post('notification/create', {
+                        ownerId: user.id,
+                        content: `${user.username} đã tạo 1 bài viết mới.`,
+                        link: router.asPath,
+                    })
+                        .then(res => res.data)
+                        .catch(err => {
+                            return {
+                                success: false,
+                                message: err.message,
+                            }
+                        })
                 } else {
                     setLoading(false)
                     toast.error(imgRes.message, {
@@ -216,8 +214,6 @@ export default function PostFormModal() {
                 }
             }
 
-            console.log("images", images);
-
             const res = await axios.put(`post/${post.id}/edit`, {
                 images,
                 status: status?.id,
@@ -231,8 +227,6 @@ export default function PostFormModal() {
                         message: err.message,
                     }
                 })
-
-            console.log(res);
 
             if (res.success) {
                 setLoading(false)
@@ -414,7 +408,7 @@ function ImgTab({ imgs, handleBack, handleChangeData }) {
 }
 
 function StatusTab({ defaultStatus, handleBack, handleChangeData }) {
-    const [selectedStatus, setSelectedStatus] = useState()
+    const [selectedStatus, setSelectedStatus] = useState(null)
 
     useEffect(() => {
         setSelectedStatus(defaultStatus)

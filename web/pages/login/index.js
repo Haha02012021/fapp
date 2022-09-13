@@ -28,7 +28,6 @@ export default function Login() {
                 values
             )
                 .then(res => {
-                    console.log(res);
                     return res.data
                 })
                 .catch(err => {
@@ -41,10 +40,12 @@ export default function Login() {
                         draggable: true,
                         progress: undefined,
                     })
-                })
-            
-            console.log(res);
-            
+
+                    return {
+                        success: false,
+                        message: err.message,
+                    }
+                })            
             const now = new Date()
             if (res?.success) {
                 const user = res.data
